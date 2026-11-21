@@ -4,5 +4,3 @@ __pycache__/
 .venv/
 index/
 .streamlit/secrets.toml
-tickets.csv
-.adk/
