@@ -68,9 +68,9 @@ def build_index() -> int:
     if INDEX_DIR.exists():
         shutil.rmtree(INDEX_DIR)
     chunks = load_chunks()
+    embeddings = _embed([c["text"] for c in chunks], "RETRIEVAL_DOCUMENT")  # may fail: do it before touching disk
     db = chromadb.PersistentClient(path=str(INDEX_DIR))
     col = db.create_collection(COLLECTION, metadata={"hnsw:space": "cosine"})
-    embeddings = _embed([c["text"] for c in chunks], "RETRIEVAL_DOCUMENT")
     col.add(
         ids=[f"chunk-{i}" for i in range(len(chunks))],
         documents=[c["text"] for c in chunks],
