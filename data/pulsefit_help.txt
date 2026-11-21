@@ -1,0 +1,64 @@
+PulseFit Gym Help Docs
+PulseFit Gym is a made-up business. This document is practice data for a learning project.
+PulseFit Gym is a made-up chain of gyms with group classes, personal training and monthly, quarterly and yearly memberships.
+
+Frequently asked questions
+
+Q: What membership plans do you have?
+A: Monthly ₹1,999, Quarterly ₹5,499 and Yearly ₹17,999. All include the gym floor and group classes.
+Q: Is there a joining fee?
+A: Yes, a one-time ₹999 joining fee. It is waived on yearly plans.
+Q: What are the gym timings?
+A: 5 AM to 11 PM on weekdays and 6 AM to 9 PM on weekends.
+Q: Which group classes do you run?
+A: Zumba, yoga, HIIT, spin and strength classes. The weekly schedule is in the app.
+Q: Do I need to book classes?
+A: Yes. Book in the app up to 2 days ahead. Cancel at least 2 hours before if you can't come.
+Q: Can I take a free trial?
+A: Yes, one free 1-day pass per person. Book it in the app and bring a photo ID.
+Q: Do you offer personal training?
+A: Yes, from ₹4,000 for 12 sessions. Book a free consultation with a trainer first.
+Q: Can I freeze my membership?
+A: Yes. Quarterly plans can freeze up to 15 days and yearly plans up to 45 days, with 3 days' notice.
+Q: Can I cancel my membership?
+A: Monthly plans can be cancelled before renewal. Quarterly and yearly plans are not refundable after 7 days.
+Q: Can I transfer my membership to a friend?
+A: Yes, once, for ₹500, if more than 30 days are left.
+Q: Can I use other PulseFit branches?
+A: Yearly members can use all branches. Others use their home branch only.
+Q: Do you have lockers and showers?
+A: Yes. Lockers are free for the day; bring your own lock.
+Q: Is parking available?
+A: Free two-wheeler parking. Car parking depends on the branch.
+Q: What should I wear?
+A: Sports clothes and clean indoor shoes. Outdoor shoes are not allowed on the gym floor.
+Q: Can I bring a guest?
+A: Yearly members get 4 guest passes a year.
+Q: Which payment methods are accepted?
+A: UPI, cards, and EMI on yearly plans with select banks.
+Q: Is auto-renewal on?
+A: Monthly plans renew on their own. Turn it off in the app at least 2 days before the renewal date.
+Q: I have a health condition. Can I join?
+A: Yes, but get your doctor's clearance first and tell the trainer before you start.
+Q: How do I check in?
+A: Scan the QR code at the entrance with the PulseFit app.
+Q: Do you give diet plans?
+A: Basic diet tips are in the app. Personal diet plans come with personal training.
+
+Policies
+
+Policy: Membership, freeze and cancellation policy
+Quarterly plans can be frozen up to 15 days and yearly plans up to 45 days, with 3 days' notice.
+Monthly plans can be cancelled before the renewal date.
+Quarterly and yearly plans are not refundable after 7 days.
+A membership can be transferred once, for ₹500, if more than 30 days are left.
+
+Policy: Gym rules and safety policy
+Clean indoor shoes only on the gym floor.
+Members with a health condition need a doctor's clearance and must tell the trainer.
+If someone is hurt, they must stop, tell the staff at once, and call 108 if it is serious.
+
+Policy: Payments and auto-renewal policy
+Monthly plans renew on their own unless turned off 2 days before renewal.
+EMI is available on yearly plans with select banks.
+Double charges are checked and refunded by the billing team.
