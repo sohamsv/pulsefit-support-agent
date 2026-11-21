@@ -1,0 +1,13 @@
+member_id,member_name,phone_last4,plan,start_date,end_date,status
+PF1001,Siddharth Jain,3840,Monthly,16-Oct-2026,15-Nov-2026,Expired
+PF1002,Diya Sharma,1579,Quarterly,16-Jul-2026,14-Oct-2026,Expired
+PF1003,Meera Nair,9091,Quarterly,27-Oct-2026,25-Jan-2027,Frozen
+PF1004,Kabir Singh,9932,Monthly,22-Sep-2026,22-Oct-2026,Expired
+PF1005,Aditya Kulkarni,2474,Yearly,18-Oct-2025,18-Oct-2026,Expired
+PF1006,Aarav Mehta,2053,Yearly,17-Jun-2026,17-Jun-2027,Frozen
+PF1007,Priya Menon,5967,Yearly,14-Sep-2026,14-Sep-2027,Active
+PF1008,Lakshmi Pillai,4627,Monthly,13-Nov-2026,13-Dec-2026,Active
+PF1009,Nikhil Chauhan,1606,Monthly,13-Oct-2026,12-Nov-2026,Expired
+PF1010,Arjun Reddy,1006,Quarterly,11-Nov-2026,09-Feb-2027,Active
+PF1011,Neha Patil,5235,Quarterly,21-Sep-2026,20-Dec-2026,Active
+PF1012,Rahul Mishra,1563,Yearly,25-Sep-2026,25-Sep-2027,Active
