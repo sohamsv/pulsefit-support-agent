@@ -12,3 +12,6 @@ web/node_modules/
 web/.next/
 web/.env.local
 .pytest_cache/
+
+# Eval run history (saved offline on your laptop)
+evals/runs/

@@ -96,3 +96,9 @@ Two kinds of checks, both from the project root:
 - Groups: `core` (existing behaviour), `tickets2`, `clarify`, `lang` (checks for features still being built), and `quick`.
 - The runner pauses between messages to stay under the free Gemini limit (about 15 requests a minute), so a full run takes about 10 minutes. Tickets go to a throwaway file.
 - `--save` writes `evals/results.json`. The staff dashboard's **Agent quality** panel shows those saved results. It never runs the evals live, so it costs no quota. To refresh the panel: run the evals with `--save`, commit `evals/results.json`, and redeploy the API.
+
+### Saved eval runs (offline)
+Every eval run is saved on your laptop in `evals/runs/`, even without `--save`:
+- `YYYY-MM-DD_HHMMSS_<what was run>.json` (all details) and `.txt` (readable report: each case, what was asked, why it failed, the reply)
+- `latest.txt` is always the most recent report
+- The folder is gitignored (private history, not deployed). `evals/results.json` is different: it is the run shown in the dashboard's Agent quality panel, and only changes with `--save`.

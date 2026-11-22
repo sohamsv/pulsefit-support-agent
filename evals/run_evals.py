@@ -8,6 +8,7 @@ Usage (from the project root):
 
 The free Gemini tier allows about 15 requests a minute and one chat message uses 2 to 3, so the runner pauses between
 messages. A full run takes around 10 minutes. Tickets go to a throwaway file, never to your real tickets.csv.
+Every run is also saved offline in evals/runs/ (timestamped .json and .txt, plus latest.txt).
 Exit code is 0 only if every selected case passes.
 """
 import argparse
@@ -104,6 +105,47 @@ async def ask(runner, session_id: str, text: str) -> str:
     return ""
 
 
+RUNS_DIR = ROOT / "evals" / "runs"
+
+
+def format_report(summary: dict) -> str:
+    """A readable text report of one run."""
+    lines = [
+        "PULSE EVAL RUN",
+        f"Date:     {summary['run_at']}   (took {summary['duration_s']}s)",
+        f"Commit:   {summary.get('commit', 'unknown')}",
+        f"Result:   {summary['passed']}/{summary['total']} passed",
+        "Groups:   " + "   ".join(f"{t} {d['passed']}/{d['total']}" for t, d in sorted(summary["by_tag"].items())),
+        "",
+    ]
+    for c in summary["cases"]:
+        lines.append(f"{'PASS' if c['passed'] else 'FAIL'}  {c['id']}")
+        lines.append(f"      asked: {c.get('question', '')}")
+        if not c["passed"]:
+            lines.append(f"      why:   {'; '.join(c['failures'])}")
+        lines.append(f"      reply: {c['reply'].replace(chr(10), ' ')}")
+        lines.append("")
+    return chr(10).join(lines)
+
+
+def save_run(summary: dict, label: str) -> Path:
+    """Every run is saved offline in evals/runs/ (a timestamped .json and .txt, plus latest.txt)."""
+    import subprocess
+
+    try:
+        summary["commit"] = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True,
+                                           text=True, timeout=10).stdout.strip() or "unknown"
+    except Exception:
+        summary["commit"] = "unknown"
+    RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    base = RUNS_DIR / f"{datetime.now().strftime('%Y-%m-%d_%H%M%S')}_{label}"
+    base.with_suffix(".json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    report = format_report(summary)
+    base.with_suffix(".txt").write_text(report, encoding="utf-8")
+    (RUNS_DIR / "latest.txt").write_text(report, encoding="utf-8")
+    return base.with_suffix(".txt")
+
+
 async def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tags", help="comma-separated tags to run")
@@ -166,6 +208,13 @@ async def main():
         "cases": [{k: v for k, v in r.items() if k != "turns"} | {"question": r["turns"][-1]} for r in results],
     }
     print(f"\n{passed}/{len(results)} passed in {summary['duration_s']}s  " + "  ".join(f"{t}: {d['passed']}/{d['total']}" for t, d in sorted(by_tag.items())))
+    label = "-".join(x for x in [
+        "quick" if a.quick else "",
+        a.tags.replace(",", "+") if a.tags else "",
+        ("ids-" + a.ids.replace(",", "+"))[:40] if a.ids else "",
+    ] if x) or "full"
+    saved = save_run(summary, label)
+    print(f"Run saved offline: {saved}  (and .json)")
     out = Path(a.out) if a.out else (ROOT / "evals" / "results.json" if a.save else None)
     if out and a.merge and out.exists():
         old_run = json.loads(out.read_text(encoding="utf-8"))
