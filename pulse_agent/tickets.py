@@ -1,10 +1,13 @@
 """Support tickets saved to tickets.csv. Ticket IDs are made by this code, never by the model."""
 import csv
+import os
 import threading
 from datetime import datetime
 from pathlib import Path
 
-TICKETS_PATH = Path(__file__).resolve().parent.parent / "tickets.csv"
+# Default: tickets.csv in the project root. The API sets PULSE_TICKETS_FILE so the ticket file
+# lives next to its database (api/data/), and the two are always reset together.
+TICKETS_PATH = Path(os.getenv("PULSE_TICKETS_FILE") or Path(__file__).resolve().parent.parent / "tickets.csv")
 FIELDS = ["ticket_id", "time", "message", "reason", "priority", "status"]
 _lock = threading.Lock()
 

@@ -1,15 +1,23 @@
 """SQLite storage: tickets, members, trial bookings and chat logs. All data is made up."""
 import csv
+import os
 import re
 import sqlite3
 import threading
 from datetime import datetime
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB = ROOT / "api" / "data" / "pulsefit.db"
 MEMBERS_CSV = ROOT / "data" / "memberships.csv"
-TICKETS_CSV = ROOT / "tickets.csv"  # written by Pulse's create_ticket tool
+# Pulse's create_ticket tool writes this file. It lives next to the database so the two reset together
+# (otherwise a reset CSV would reuse ticket IDs the database already has).
+TICKETS_CSV = Path(os.getenv("PULSE_TICKETS_FILE") or ROOT / "api" / "data" / "tickets.csv")
+os.environ["PULSE_TICKETS_FILE"] = str(TICKETS_CSV)
 NO_ANSWER = "i don't have that information"
 
 SCHEMA = """
