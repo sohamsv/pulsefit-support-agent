@@ -118,6 +118,21 @@ function QualityPanel({ evals }) {
         </ul>
       </div>
       <div className="mt-5">
+        <h3 className="text-sm font-semibold">All checks ({(evals.cases || []).length})</h3>
+        <ul className="mt-2 flex flex-wrap gap-2">
+          {(evals.cases || []).map((c) => (
+            <li
+              key={c.id}
+              title={c.question}
+              className={`rounded-full border px-2.5 py-1 text-xs ${c.passed ? "border-ok/60 text-ok" : "border-danger text-danger"}`}
+            >
+              <span aria-hidden="true">{c.passed ? "✓" : "✗"}</span>
+              <span className="sr-only">{c.passed ? "Passed: " : "Failed: "}</span> {c.id.replaceAll("_", " ")}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="mt-5">
         <h3 className="text-sm font-semibold">{failing.length === 0 ? "No failing checks" : `Failing checks (${failing.length})`}</h3>
         <ul className="mt-2 space-y-2 text-sm">
           {failing.map((c) => (
