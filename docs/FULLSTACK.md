@@ -45,3 +45,40 @@ that `streamlit run app.py` and `test_tricky.py` still pass.
 
 ## Practice-grade limits
 Logins are simple (ID + 4 digits, one staff passcode) and state is in memory and SQLite. Fine for made-up data, not for real members.
+
+## Deploying (Vercel for the website, Render for the API, both from the CLI)
+Nothing here touches `main`, and the Streamlit app keeps deploying from `main`.
+
+Live URLs (practice data only):
+- Website (Vercel): https://pulsefit-gym-ten.vercel.app
+- API (Render): https://pulsefit-api-kuzt.onrender.com (free plan, deploys the `extend-fullstack` branch)
+
+### API on Render
+Render builds from GitHub, so push the branch first. `render.yaml` documents the setup.
+1. Log in once: `render login`, approve the code in the browser, then `render workspace set <workspace-id>`.
+2. Create the service (first time only). Secrets come from your local `.env`, never from the repo:
+   `render services create --name pulsefit-api --type web_service --runtime python --plan free --repo <github-url> --branch extend-fullstack --build-command "pip install -r api/requirements.txt" --start-command "python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT" --health-check-path /health --auto-deploy=false --env-var PYTHON_VERSION=3.13.5 --env-var TRUST_PROXY=1 --env-var GOOGLE_API_KEY=... --env-var STAFF_PASSCODE=... --env-var API_SECRET=<random>`
+3. Redeploy after pushing changes: `render deploys create <service-id> --wait`. Logs: `render logs -r <service-id>`.
+4. Check `GET <api-url>/health`, then one real `POST /chat`.
+
+The Render CLI cannot change environment variables on an existing service. Change them in the Render dashboard, or
+(as done for the website's address) put the value in code. The website's exact URL is in `PRODUCTION_ORIGINS` in `api/main.py`.
+
+### Website on Vercel
+From `web/`:
+1. `npx vercel link --yes --project <name>`
+2. Set the API address (baked in at build time): `printf '<api-url>' | npx vercel env add NEXT_PUBLIC_API_URL production`
+3. `npx vercel deploy --prod --yes`. Redeploy whenever the API URL changes.
+
+### Connecting the two
+- The website calls the API at `NEXT_PUBLIC_API_URL`.
+- The API only accepts browser calls from `CORS_ORIGINS` plus `PRODUCTION_ORIGINS`. A new website address needs a redeploy of the API.
+- `TRUST_PROXY=1` on Render so the rate limits see each visitor's real IP.
+
+### Free-tier caveats
+- The API sleeps after 15 minutes without traffic, and the first request afterwards takes about a minute. Open the site a few minutes before a demo.
+- The free disk is ephemeral: SQLite data, tickets and trial bookings reset on every restart or redeploy.
+- The free instance has 512 MB of RAM. If the API ever runs out of memory, move the Render plan up.
+- The Gemini free tier allows about 15 requests a minute, which is why chat is rate limited (see above).
+- Render CLI login tokens expire after 7 days (`render login` again).
+- Keep secrets in the host's settings. Rotate any key that has been pasted into a chat or document.
