@@ -183,3 +183,14 @@ def test_trial_booking_validation_and_limit(ctx):
     assert client.post("/trial", json=good).status_code == 200  # 2nd allowed
     assert client.post("/trial", json=good).status_code == 429  # 3rd within the hour blocked
     assert len(client.get("/staff/trials", headers=staff_headers(client)).json()["trials"]) == 2
+
+
+# ---------------- CORS ----------------
+def test_cors_allows_production_site_and_local_dev_but_not_strangers(ctx):
+    client, _, _ = ctx
+    def preflight(origin):
+        return client.options("/chat", headers={"Origin": origin, "Access-Control-Request-Method": "POST",
+                                                "Access-Control-Request-Headers": "content-type"})
+    assert preflight("https://pulsefit-gym-ten.vercel.app").headers.get("access-control-allow-origin") == "https://pulsefit-gym-ten.vercel.app"
+    assert preflight("http://localhost:3000").headers.get("access-control-allow-origin") == "http://localhost:3000"
+    assert preflight("https://evil.example.com").headers.get("access-control-allow-origin") is None

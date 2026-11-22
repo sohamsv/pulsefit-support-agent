@@ -25,6 +25,8 @@ from .security import make_token, read_token, same
 
 load_dotenv()
 
+# The deployed PulseFit website. Always allowed to call this API, in addition to CORS_ORIGINS.
+PRODUCTION_ORIGINS = ["https://pulsefit-gym-ten.vercel.app"]
 BRANCHES = ["Panjim", "Margao", "Mapusa"]
 STATUSES = ["open", "in_progress", "resolved"]
 SESSION_RE = re.compile(r"^[A-Za-z0-9-]{8,64}$")
@@ -93,6 +95,7 @@ def create_app(db_path=None, run_pulse=None) -> FastAPI:
     staff_pass = os.getenv("STAFF_PASSCODE", "")
 
     origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
+    origins += [o for o in PRODUCTION_ORIGINS if o not in origins]  # the deployed website (exact URL, no wildcard)
     app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 
     def ip_of(request: Request) -> str:
