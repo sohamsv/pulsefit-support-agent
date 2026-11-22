@@ -61,3 +61,11 @@ async def run_pulse(session_id: str, text: str) -> dict:
                 continue
             raise ModelUnavailable() from e
     raise ModelUnavailable()
+
+
+def warm():
+    """Load Pulse (and build the help-docs index if missing) ahead of the first chat. Never raises."""
+    try:
+        _get_runner()
+    except Exception as e:  # the first real chat will surface the problem
+        print(f"[warm-up] Pulse could not be loaded yet: {type(e).__name__}", flush=True)

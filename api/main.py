@@ -6,7 +6,9 @@ import asyncio
 import os
 import re
 import secrets
+import threading
 import uuid
+from contextlib import asynccontextmanager
 from datetime import date
 from typing import Optional
 
@@ -64,7 +66,15 @@ def _int(name: str, default: int) -> int:
 
 def create_app(db_path=None, run_pulse=None) -> FastAPI:
     """App factory. `run_pulse` can be replaced in tests so no real Gemini calls are made."""
-    app = FastAPI(title="PulseFit API", version="1.0")
+    @asynccontextmanager
+    async def lifespan(_app):
+        # Real Pulse only (not in tests): load the agent and build the index in the background so
+        # /health answers at once and the first chat does not pay for the index build.
+        if run_pulse is None and os.getenv("WARM_PULSE", "1") == "1":
+            threading.Thread(target=agent_runner.warm, daemon=True).start()
+        yield
+
+    app = FastAPI(title="PulseFit API", version="1.0", lifespan=lifespan)
     db = Database(db_path) if db_path else Database()
     ask_pulse = run_pulse or agent_runner.run_pulse
 
