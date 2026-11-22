@@ -194,3 +194,19 @@ def test_cors_allows_production_site_and_local_dev_but_not_strangers(ctx):
     assert preflight("https://pulsefit-gym-ten.vercel.app").headers.get("access-control-allow-origin") == "https://pulsefit-gym-ten.vercel.app"
     assert preflight("http://localhost:3000").headers.get("access-control-allow-origin") == "http://localhost:3000"
     assert preflight("https://evil.example.com").headers.get("access-control-allow-origin") is None
+
+
+# ---------------- eval results panel ----------------
+def test_staff_evals_endpoint(ctx, monkeypatch):
+    import json
+    from api import main as mainmod
+    client, _, tmp_path = ctx
+    assert client.get("/staff/evals").status_code == 401  # staff only
+    h = staff_headers(client)
+    monkeypatch.setattr(mainmod, "EVALS_RESULTS", tmp_path / "nope.json")
+    assert client.get("/staff/evals", headers=h).json() == {"available": False}
+    f = tmp_path / "results.json"
+    f.write_text(json.dumps({"run_at": "2026-11-22 10:00 UTC", "passed": 3, "total": 4, "by_tag": {}, "cases": []}), encoding="utf-8")
+    monkeypatch.setattr(mainmod, "EVALS_RESULTS", f)
+    out = client.get("/staff/evals", headers=h).json()
+    assert out["available"] is True and out["passed"] == 3 and out["total"] == 4

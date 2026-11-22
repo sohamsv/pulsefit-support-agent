@@ -65,6 +65,74 @@ function TicketCard({ t, token, onChange, onAuthLost }) {
   );
 }
 
+const TAG_LABEL = {
+  core: "Core behaviors",
+  tickets2: "Richer tickets",
+  clarify: "Clarifying questions",
+  lang: "Languages",
+};
+
+function QualityPanel({ evals }) {
+  if (evals === undefined) {
+    return (
+      <section aria-labelledby="quality" className="mt-10 rounded-xl border border-line bg-surface p-5">
+        <h2 id="quality" className="text-xl font-bold">Agent quality</h2>
+        <p className="mt-2 text-sm text-muted">Loading…</p>
+      </section>
+    );
+  }
+  if (!evals?.available) {
+    return (
+      <section aria-labelledby="quality" className="mt-10 rounded-xl border border-line bg-surface p-5">
+        <h2 id="quality" className="text-xl font-bold">Agent quality</h2>
+        <p className="mt-2 text-sm text-muted">No test results saved yet. Run <code>python evals/run_evals.py --save</code> and redeploy to show them here.</p>
+      </section>
+    );
+  }
+  const pct = evals.total ? Math.round((evals.passed / evals.total) * 100) : 0;
+  const groups = Object.entries(evals.by_tag || {}).filter(([t]) => TAG_LABEL[t]);
+  const failing = (evals.cases || []).filter((c) => !c.passed);
+  return (
+    <section aria-labelledby="quality" className="mt-10 rounded-xl border border-line bg-surface p-5">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <h2 id="quality" className="text-xl font-bold">Agent quality</h2>
+        <p className="text-xs text-muted">Last test run: {evals.run_at} · took {Math.round((evals.duration_s || 0) / 60)} min · saved results, not run live</p>
+      </div>
+      <div className="mt-4 grid gap-6 md:grid-cols-[auto_1fr]">
+        <div>
+          <p className={`text-5xl font-extrabold ${pct === 100 ? "text-ok" : pct >= 80 ? "text-warn" : "text-danger"}`}>{pct}%</p>
+          <p className="mt-1 text-sm text-muted">{evals.passed} of {evals.total} checks passed</p>
+        </div>
+        <ul className="space-y-3">
+          {groups.map(([tag, d]) => {
+            const p = d.total ? Math.round((d.passed / d.total) * 100) : 0;
+            return (
+              <li key={tag}>
+                <div className="flex justify-between text-sm"><span>{TAG_LABEL[tag]}</span><span className="text-muted">{d.passed}/{d.total}</span></div>
+                <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface2" role="progressbar" aria-label={TAG_LABEL[tag]} aria-valuenow={p} aria-valuemin={0} aria-valuemax={100}>
+                  <div className="h-full bg-accent" style={{ width: `${p}%` }} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      <div className="mt-5">
+        <h3 className="text-sm font-semibold">{failing.length === 0 ? "No failing checks" : `Failing checks (${failing.length})`}</h3>
+        <ul className="mt-2 space-y-2 text-sm">
+          {failing.map((c) => (
+            <li key={c.id} className="rounded-lg border border-line bg-bg p-3">
+              <p className="font-semibold">{c.id}</p>
+              <p className="text-muted">Asked: “{c.question}”</p>
+              <p className="text-danger">{(c.failures || []).join("; ")}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 export default function Staff() {
   const [token, setToken] = useState(null);
   const [pass, setPass] = useState("");
@@ -72,6 +140,7 @@ export default function Staff() {
   const [tickets, setTickets] = useState([]);
   const [stats, setStats] = useState(null);
   const [trials, setTrials] = useState([]);
+  const [evals, setEvals] = useState(undefined); // undefined = still loading
   const [statusF, setStatusF] = useState("");
   const [prioF, setPrioF] = useState("");
   const [loadErr, setLoadErr] = useState("");
@@ -89,14 +158,16 @@ export default function Staff() {
     if (statusF) q.set("status", statusF);
     if (prioF) q.set("priority", prioF);
     try {
-      const [t, s, tr] = await Promise.all([
+      const [t, s, tr, ev] = await Promise.all([
         api(`/tickets${q.toString() ? `?${q}` : ""}`, { token }),
         api("/staff/stats", { token }),
         api("/staff/trials", { token }),
+        api("/staff/evals", { token }).catch(() => ({ available: false })),
       ]);
       setTickets(t.tickets);
       setStats(s);
       setTrials(tr.trials);
+      setEvals(ev);
       setLoadErr("");
     } catch (e) {
       if (e.status === 401) logout();
@@ -213,6 +284,8 @@ export default function Staff() {
           </ul>
         </section>
       </div>
+
+      <QualityPanel evals={evals} />
 
       <section className="mt-10" aria-labelledby="trials">
         <h2 id="trials" className="text-xl font-bold">Free trial bookings</h2>

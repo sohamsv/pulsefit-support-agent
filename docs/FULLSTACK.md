@@ -82,3 +82,17 @@ From `web/`:
 - The Gemini free tier allows about 15 requests a minute, which is why chat is rate limited (see above).
 - Render CLI login tokens expire after 7 days (`render login` again).
 - Keep secrets in the host's settings. Rotate any key that has been pasted into a chat or document.
+
+## Testing Pulse (evals)
+Two kinds of checks, both from the project root:
+
+| What | Command | Needs Gemini? |
+|---|---|---|
+| Fast code checks (safety filter) | `python -m pytest tests -q` | No |
+| API tests (logins, tickets, rate limits, CORS) | `python -m pytest api/tests -q` | No |
+| Pulse evals (about 46 cases) | `python evals/run_evals.py --quick` (12 cases), `--tags core`, `--ids a,b`, or `--save` for a full run | Yes, uses the free quota |
+
+- Cases live in `evals/cases.json`: a message (or a short conversation) plus what the reply must and must not contain, whether a ticket is raised and its priority.
+- Groups: `core` (existing behaviour), `tickets2`, `clarify`, `lang` (checks for features still being built), and `quick`.
+- The runner pauses between messages to stay under the free Gemini limit (about 15 requests a minute), so a full run takes about 10 minutes. Tickets go to a throwaway file.
+- `--save` writes `evals/results.json`. The staff dashboard's **Agent quality** panel shows those saved results. It never runs the evals live, so it costs no quota. To refresh the panel: run the evals with `--save`, commit `evals/results.json`, and redeploy the API.

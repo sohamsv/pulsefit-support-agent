@@ -3,6 +3,7 @@
 Run:  uvicorn api.main:app --port 8001
 """
 import asyncio
+import json
 import os
 import re
 import secrets
@@ -10,6 +11,7 @@ import threading
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date
+from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
@@ -27,6 +29,8 @@ load_dotenv()
 
 # The deployed PulseFit website. Always allowed to call this API, in addition to CORS_ORIGINS.
 PRODUCTION_ORIGINS = ["https://pulsefit-gym-ten.vercel.app"]
+# Saved results of the last eval run (python evals/run_evals.py --save). Shown in the staff dashboard; never run live.
+EVALS_RESULTS = Path(__file__).resolve().parent.parent / "evals" / "results.json"
 BRANCHES = ["Panjim", "Margao", "Mapusa"]
 STATUSES = ["open", "in_progress", "resolved"]
 SESSION_RE = re.compile(r"^[A-Za-z0-9-]{8,64}$")
@@ -184,6 +188,14 @@ def create_app(db_path=None, run_pulse=None) -> FastAPI:
     @app.get("/staff/stats", dependencies=[Depends(staff_only)])
     def staff_stats():
         return db.stats()
+
+    @app.get("/staff/evals", dependencies=[Depends(staff_only)])
+    def staff_evals():
+        """Last saved eval results (read from a file, so viewing this uses no Gemini quota)."""
+        try:
+            return {"available": True, **json.loads(EVALS_RESULTS.read_text(encoding="utf-8"))}
+        except (OSError, ValueError):
+            return {"available": False}
 
     @app.get("/staff/trials", dependencies=[Depends(staff_only)])
     def staff_trials():
