@@ -1,0 +1,25 @@
+# Render Blueprint for the PulseFit API (FastAPI + Pulse agent). Deploys the extend-fullstack branch.
+# Secrets marked sync: false are entered in Render, never stored in this repo.
+services:
+  - type: web
+    name: pulsefit-api
+    runtime: python
+    plan: free
+    branch: extend-fullstack
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
+      - key: TRUST_PROXY
+        value: "1"
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: STAFF_PASSCODE
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: API_SECRET
+        generateValue: true

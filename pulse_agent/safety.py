@@ -27,8 +27,17 @@ VIOLENCE = [
 ]
 
 
+# Gym slang like "murder this deadlift" or "kill that workout" is not a threat. Only these clear gym words are
+# ignored, so "murder this guy" is still caught.
+GYM_SLANG = re.compile(
+    r"\b(kill|murder|destroy|crush|smash)(s|ed|ing)?\s+(this|that|these|those|my|the|today'?s)\s+"
+    r"(workout|session|set|sets|deadlifts?|squats?|lifts?|legs?|leg day|chest|back|cardio|class|run|gym|bench|pr)\b"
+)
+
+
 def check(text: str) -> Optional[str]:
     t = (text or "").lower().replace("’", "'")
+    t = GYM_SLANG.sub(" ", t)
     if SELF_HARM.search(t):
         return SELF_HARM_REPLY
     if any(p.search(t) for p in VIOLENCE):
