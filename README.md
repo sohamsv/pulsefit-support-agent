@@ -12,9 +12,14 @@ PulseFit is a made-up gym with branches in Goa. This project is an AI support ag
 | Free trial form | https://pulsefit-gym-ten.vercel.app/trial |
 | API (Render) | https://pulsefit-api-kuzt.onrender.com |
 | API health check | https://pulsefit-api-kuzt.onrender.com/health |
-| Chat agent only (Streamlit Cloud) | see your Streamlit Cloud dashboard (deploys from `main`) |
 
 The Render API is on the free plan and sleeps when idle. The first request can take 30 to 60 seconds. Open the health link first to wake it.
+
+### Pulse support agent, chat only (Streamlit)
+
+https://pulsefit-pulse.streamlit.app/
+
+This is the original support agent from Steps 1 to 4, with just the chat and no website. It is deployed on Streamlit Cloud from the `main` branch.
 
 ## What Pulse does
 
